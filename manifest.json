@@ -1,11 +1,13 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "url-dropper",
+	"name": "URL Dropper",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": false
+	"description": "Drag and drop URLs to create new notes",
+	"author": "Greg K.",
+	"authorUrl": "https://github.com/soundslikeinfo",
+	"fundingUrl": {
+		"Buy Me a Coffee": "https://www.buymeacoffee.com/soundslikeinfo"
+	},
+	"isDesktopOnly": true
 }
