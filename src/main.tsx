@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
 import './styles.css';
 import { Plugin, PluginSettingTab, App, Setting, TFile, normalizePath, WorkspaceLeaf, ItemView, Notice } from 'obsidian';
@@ -8,13 +8,15 @@ interface UrlDropperSettings {
     frontmatterKey: string;
     noteLocation: 'default' | 'vault' | 'custom';
     customNoteLocation: string;
+    openNewNote: boolean;
 }
 
 const DEFAULT_SETTINGS: UrlDropperSettings = {
     template: '---\n{{frontmatterKey}}: {{url}}\n---\n\n# {{title}}\n\n',
     frontmatterKey: 'url',
     noteLocation: 'default',
-    customNoteLocation: ''
+    customNoteLocation: '',
+    openNewNote: false,
 }
 
 export default class UrlDropperPlugin extends Plugin {
@@ -98,15 +100,42 @@ interface UrlDropperComponentProps {
 }
 
 const UrlDropperComponent: React.FC<UrlDropperComponentProps> = ({ plugin }) => {
-    const [isDragging, setIsDragging] = React.useState(false);
+    const [isDragging, setIsDragging] = useState(false);
+    const [processingCount, setProcessingCount] = useState(0);
 
-    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    // Utility functions
+    const sanitizeFileName = (fileName: string): string => {
+        return fileName
+            .replace(/\s*-\s*/g, '—') // Replace " - " or "-" with em dash
+            .replace(/[^\w\s—]/g, '') // Remove special characters but keep em dash
+            .trim()
+            .replace(/\s+/g, '-') // Replace spaces with single dash
+            .toLowerCase();
+    };
+
+    const getNotePath = (fileName: string): string => {
+        switch (plugin.settings.noteLocation) {
+            case 'vault':
+                return fileName;
+            case 'custom':
+                return normalizePath(`${plugin.settings.customNoteLocation}/${fileName}`);
+            default:
+                const newFileParent = plugin.app.fileManager.getNewFileParent("");
+                if (newFileParent) {
+                    return normalizePath(`${newFileParent.path}/${fileName}`);
+                } else {
+                    return fileName;
+                }
+        }
+    };
+
+    const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
         if (!isDragging) setIsDragging(true);
-    };
+    }, [isDragging]);
 
-    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
         const rect = e.currentTarget.getBoundingClientRect();
@@ -119,20 +148,10 @@ const UrlDropperComponent: React.FC<UrlDropperComponentProps> = ({ plugin }) => 
             return;
         }
         setIsDragging(false);
-    };
+    }, []);
 
-    const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragging(false);
-
-        const url = e.dataTransfer.getData('text/plain');
-        if (url) {
-            await processDroppedUrl(url);
-        }
-    };
-    
-    const processDroppedUrl = async (url: string) => {
+    const processDroppedUrl = useCallback(async (url: string) => {
+        setProcessingCount(count => count + 1);
         try {
             const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
             const data = await response.json();
@@ -153,33 +172,39 @@ const UrlDropperComponent: React.FC<UrlDropperComponentProps> = ({ plugin }) => 
                 .replace('{{title}}', title);
     
             const filePath = getNotePath(fileName);
-            await plugin.app.vault.create(filePath, content);
+            const newFile = await plugin.app.vault.create(filePath, content);
+            
+            if (plugin.settings.openNewNote && newFile) {
+                const leaf = plugin.app.workspace.getLeaf(true);
+                await leaf.openFile(newFile);
+            }
+            
             new Notice(`Note created: ${filePath}`);
         } catch (error) {
-            console.error('Error processing URL:', error);
-            new Notice('Error processing URL. Check console for details.');
+            // Check if it's a "File already exists" error
+            if (error instanceof Error && error.message.includes('already exists')) {
+                new Notice(
+                    `URL: ${url}\nError: Note with this title already exists`, 
+                    10000  // Show for 10 seconds
+                );
+            } else {
+                // For other errors, still show a notice but with different messaging
+                new Notice(`Error processing URL. Please try again.`);
+                console.error('Error processing URL:', error);
+            }
+        } finally {
+            setProcessingCount(count => count - 1);
         }
-    };
+    }, [plugin]);
 
-    const sanitizeFileName = (fileName: string): string => {
-        return fileName.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
-    };
+    const handleDrop = useCallback(async (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
 
-    const getNotePath = (fileName: string): string => {
-        switch (plugin.settings.noteLocation) {
-            case 'vault':
-                return fileName;
-            case 'custom':
-                return normalizePath(`${plugin.settings.customNoteLocation}/${fileName}`);
-            default:
-                const newFileParent = plugin.app.fileManager.getNewFileParent("");
-                if (newFileParent) {
-                    return normalizePath(`${newFileParent.path}/${fileName}`);
-                } else {
-                    return fileName; // This will create the file in the vault root
-                }
-        }
-    };
+        const urls = e.dataTransfer.getData('text/plain').split('\n').filter(url => url.trim());
+        urls.forEach(processDroppedUrl);
+    }, [processDroppedUrl]);
 
     return (
         <div 
@@ -191,9 +216,26 @@ const UrlDropperComponent: React.FC<UrlDropperComponentProps> = ({ plugin }) => 
             <div className="dropzone-content">
                 <h4>{isDragging ? 'Ready for your URL' : 'Drop URL Here'}</h4>
             </div>
+            {processingCount > 0 && (
+                <div className="processing-status">
+                    Processing {processingCount} note{processingCount > 1 ? 's' : ''}...
+                </div>
+            )}
         </div>
     );
 };
+
+async function fetchPageTitle(url: string): Promise<string> {
+    try {
+        const response = await fetch(url, { method: 'GET' });
+        const html = await response.text();
+        const match = html.match(/<title>(.*?)<\/title>/i);
+        return match && match[1] ? match[1] : '';
+    } catch (error) {
+        console.error('Error fetching page title:', error);
+        return '';
+    }
+}
 
 class UrlDropperSettingTab extends PluginSettingTab {
     plugin: UrlDropperPlugin;
@@ -256,5 +298,15 @@ class UrlDropperSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }));
         }
+
+        new Setting(containerEl)
+            .setName('Open New Note')
+            .setDesc('Automatically open newly created notes')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.openNewNote)
+                .onChange(async (value) => {
+                    this.plugin.settings.openNewNote = value;
+                    await this.plugin.saveSettings();
+                }));
     }
 }

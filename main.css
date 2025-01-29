@@ -3,6 +3,7 @@
   position: relative;
   height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   background-color: var(--background-secondary);
@@ -10,24 +11,52 @@
   border-radius: 10px;
   transition: all 0.3s ease;
   cursor: default;
+  padding: 20px;
 }
 .url-dropper-dropzone .dropzone-content {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   pointer-events: none;
 }
 .url-dropper-dropzone h4 {
   margin: 0;
   color: var(--text-muted);
-  font-size: 18px;
+  font-size: clamp(14px, 3vw, 18px);
   transition: all 0.3s ease;
-}
-.url-dropper-dropzone.dragging {
-  border-color: var(--interactive-accent);
-  background-color: rgba(var(--interactive-accent-rgb), 0.1);
 }
 .url-dropper-dropzone.dragging h4 {
   color: var(--interactive-accent);
-  font-size: 24px;
+  font-size: clamp(18px, 4vw, 24px);
   font-weight: bold;
 }
-/*# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic3JjL3N0eWxlcy5jc3MiXSwKICAic291cmNlc0NvbnRlbnQiOiBbIi8qIC51cmwtZHJvcHBlci1kcm9wem9uZSB7XG4gICAgcG9zaXRpb246IHJlbGF0aXZlO1xuICAgIGhlaWdodDogMTAwJTtcbiAgICBkaXNwbGF5OiBmbGV4O1xuICAgIGFsaWduLWl0ZW1zOiBjZW50ZXI7XG4gICAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tYmFja2dyb3VuZC1zZWNvbmRhcnkpO1xuICAgIGJvcmRlcjogMnB4IGRhc2hlZCB2YXIoLS10ZXh0LW11dGVkKTtcbiAgICBib3JkZXItcmFkaXVzOiAxMHB4O1xuICAgIHRyYW5zaXRpb246IGFsbCAwLjNzIGVhc2U7XG59XG5cbi51cmwtZHJvcHBlci1kcm9wem9uZSAuZHJvcHpvbmUtY29udGVudCB7XG4gICAgdGV4dC1hbGlnbjogY2VudGVyO1xufVxuXG4udXJsLWRyb3BwZXItZHJvcHpvbmUgaDQge1xuICAgIG1hcmdpbjogMDtcbiAgICBjb2xvcjogdmFyKC0tdGV4dC1tdXRlZCk7XG59XG5cbi51cmwtZHJvcHBlci1kcm9wem9uZSAuZHJhZy1vdmVybGF5IHtcbiAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgdG9wOiAwO1xuICAgIGxlZnQ6IDA7XG4gICAgcmlnaHQ6IDA7XG4gICAgYm90dG9tOiAwO1xuICAgIGJhY2tncm91bmQtY29sb3I6IHJnYmEodmFyKC0taW50ZXJhY3RpdmUtYWNjZW50LXJnYiksIDAuNyk7XG4gICAgZGlzcGxheTogZmxleDtcbiAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgIGp1c3RpZnktY29udGVudDogY2VudGVyO1xuICAgIGJvcmRlci1yYWRpdXM6IDhweDtcbn1cblxuLnVybC1kcm9wcGVyLWRyb3B6b25lIC5kcmFnLW92ZXJsYXkgc3BhbiB7XG4gICAgZm9udC1zaXplOiAyNHB4O1xuICAgIGZvbnQtd2VpZ2h0OiBib2xkO1xuICAgIGNvbG9yOiB2YXIoLS10ZXh0LW9uLWFjY2VudCk7XG59XG5cbi51cmwtZHJvcHBlci1kcm9wem9uZS5kcmFnZ2luZyB7XG4gICAgYm9yZGVyLWNvbG9yOiB2YXIoLS1pbnRlcmFjdGl2ZS1hY2NlbnQpO1xuICAgIGJhY2tncm91bmQtY29sb3I6IHZhcigtLWJhY2tncm91bmQtcHJpbWFyeSk7XG59ICovXG5cbi51cmwtZHJvcHBlci1kcm9wem9uZSB7XG4gICAgcG9zaXRpb246IHJlbGF0aXZlO1xuICAgIGhlaWdodDogMTAwJTtcbiAgICBkaXNwbGF5OiBmbGV4O1xuICAgIGFsaWduLWl0ZW1zOiBjZW50ZXI7XG4gICAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tYmFja2dyb3VuZC1zZWNvbmRhcnkpO1xuICAgIGJvcmRlcjogMnB4IGRhc2hlZCB2YXIoLS10ZXh0LW11dGVkKTtcbiAgICBib3JkZXItcmFkaXVzOiAxMHB4O1xuICAgIHRyYW5zaXRpb246IGFsbCAwLjNzIGVhc2U7XG4gICAgY3Vyc29yOiBkZWZhdWx0O1xufVxuXG4udXJsLWRyb3BwZXItZHJvcHpvbmUgLmRyb3B6b25lLWNvbnRlbnQge1xuICAgIHRleHQtYWxpZ246IGNlbnRlcjtcbiAgICBwb2ludGVyLWV2ZW50czogbm9uZTsgLyogVGhpcyBhbGxvd3MgY2xpY2tzIHRvIHBhc3MgdGhyb3VnaCB0byB0aGUgcGFyZW50ICovXG59XG5cbi51cmwtZHJvcHBlci1kcm9wem9uZSBoNCB7XG4gICAgbWFyZ2luOiAwO1xuICAgIGNvbG9yOiB2YXIoLS10ZXh0LW11dGVkKTtcbiAgICBmb250LXNpemU6IDE4cHg7XG4gICAgdHJhbnNpdGlvbjogYWxsIDAuM3MgZWFzZTtcbn1cblxuLnVybC1kcm9wcGVyLWRyb3B6b25lLmRyYWdnaW5nIHtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLWludGVyYWN0aXZlLWFjY2VudCk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogcmdiYSh2YXIoLS1pbnRlcmFjdGl2ZS1hY2NlbnQtcmdiKSwgMC4xKTtcbn1cblxuLnVybC1kcm9wcGVyLWRyb3B6b25lLmRyYWdnaW5nIGg0IHtcbiAgICBjb2xvcjogdmFyKC0taW50ZXJhY3RpdmUtYWNjZW50KTtcbiAgICBmb250LXNpemU6IDI0cHg7XG4gICAgZm9udC13ZWlnaHQ6IGJvbGQ7XG59XG4iXSwKICAibWFwcGluZ3MiOiAiO0FBNkNBO0FBQ0k7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFBQTtBQUdKO0FBQ0k7QUFDQTtBQUFBO0FBR0o7QUFDSTtBQUNBO0FBQ0E7QUFDQTtBQUFBO0FBR0o7QUFDSTtBQUNBO0FBQUE7QUFHSjtBQUNJO0FBQ0E7QUFDQTtBQUFBOyIsCiAgIm5hbWVzIjogW10KfQo= */
+.processing-status {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: clamp(10px, 2vw, 12px);
+  padding: 2px 5px;
+  background-color: rgba(var(--background-secondary-rgb), 0.8);
+  border-radius: 5px;
+  margin: 0 10px;
+}
+@media screen and (max-height: 150px) {
+  .url-dropper-dropzone {
+    padding: 10px;
+  }
+  .url-dropper-dropzone h4 {
+    font-size: 14px;
+  }
+  .url-dropper-dropzone.dragging h4 {
+    font-size: 16px;
+  }
+  .processing-status {
+    font-size: 10px;
+    bottom: 4px;
+  }
+}

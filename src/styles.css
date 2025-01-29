@@ -1,52 +1,8 @@
-/* .url-dropper-dropzone {
-    position: relative;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--background-secondary);
-    border: 2px dashed var(--text-muted);
-    border-radius: 10px;
-    transition: all 0.3s ease;
-}
-
-.url-dropper-dropzone .dropzone-content {
-    text-align: center;
-}
-
-.url-dropper-dropzone h4 {
-    margin: 0;
-    color: var(--text-muted);
-}
-
-.url-dropper-dropzone .drag-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(var(--interactive-accent-rgb), 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-}
-
-.url-dropper-dropzone .drag-overlay span {
-    font-size: 24px;
-    font-weight: bold;
-    color: var(--text-on-accent);
-}
-
-.url-dropper-dropzone.dragging {
-    border-color: var(--interactive-accent);
-    background-color: var(--background-primary);
-} */
-
 .url-dropper-dropzone {
     position: relative;
     height: 100%;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     background-color: var(--background-secondary);
@@ -54,27 +10,60 @@
     border-radius: 10px;
     transition: all 0.3s ease;
     cursor: default;
+    padding: 20px;
 }
 
 .url-dropper-dropzone .dropzone-content {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    pointer-events: none; /* This allows clicks to pass through to the parent */
+    pointer-events: none;
 }
 
 .url-dropper-dropzone h4 {
     margin: 0;
     color: var(--text-muted);
-    font-size: 18px;
+    font-size: clamp(14px, 3vw, 18px);
     transition: all 0.3s ease;
-}
-
-.url-dropper-dropzone.dragging {
-    border-color: var(--interactive-accent);
-    background-color: rgba(var(--interactive-accent-rgb), 0.1);
 }
 
 .url-dropper-dropzone.dragging h4 {
     color: var(--interactive-accent);
-    font-size: 24px;
+    font-size: clamp(18px, 4vw, 24px);
     font-weight: bold;
+}
+
+.processing-status {
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: clamp(10px, 2vw, 12px); /* Significantly smaller than the main text */
+    padding: 2px 5px;
+    background-color: rgba(var(--background-secondary-rgb), 0.8);
+    border-radius: 5px;
+    margin: 0 10px;
+}
+
+@media screen and (max-height: 150px) {
+    .url-dropper-dropzone {
+        padding: 10px;
+    }
+    
+    .url-dropper-dropzone h4 {
+        font-size: 14px;
+    }
+    
+    .url-dropper-dropzone.dragging h4 {
+        font-size: 16px;
+    }
+    
+    .processing-status {
+        font-size: 10px;
+        bottom: 4px;
+    }
 }
